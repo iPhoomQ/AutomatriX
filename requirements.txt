@@ -1,0 +1,5 @@
+yt-dlp>=2025.8.20
+moviepy>=2.1.2
+requests>=2.31.0
+Pillow>=11.3.0
+beautifulsoup4>=4.13.4

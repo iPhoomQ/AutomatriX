@@ -1,5 +1,5 @@
 import os
-from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 
 def add_watermark_to_videos(folder_path):
     for filename in os.listdir(folder_path):
@@ -12,16 +12,16 @@ def add_watermark_to_videos(folder_path):
                 clip = VideoFileClip(input_path)
                 
                 # Reduce audio volume by 80%
-                clip = clip.volumex(0.8)
+                clip = clip.with_volume_scaled(0.8)
                 
                 # Create text watermark
                 txt_clip = TextClip(
-                    "Hello World",
-                    fontsize=50,
+                    text="Hello World",
+                    font_size=50,
                     color='white',
-                    font="Arial-Bold.ttf",  # Ensure this font is available
                     stroke_color='black',
                     stroke_width=2
+                    # Using default font for better compatibility
                 ).set_duration(clip.duration).set_position(('center', 'bottom'))
                 
                 # Overlay text onto video

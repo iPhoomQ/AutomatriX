@@ -143,7 +143,7 @@ def search_large_images(search_term, num_images=5, output_folder='large_images',
 
 if __name__ == "__main__":
     search_term = input("Enter search term: ").strip()
-    num_images = min(max(int(input("How many images to download? (1-10): ").strip() or 5), 10)
+    num_images = min(max(int(input("How many images to download? (1-10): ").strip() or 5), 1), 10)
     min_size = int(input("Minimum image size in KB (e.g., 800 for ~1MB): ").strip() or 800)
     
     search_large_images(
