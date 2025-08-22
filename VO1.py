@@ -1,4 +1,4 @@
-from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip # type: ignore
+from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 import os
 
 def add_text_to_video(input_folder, output_folder):
@@ -20,7 +20,7 @@ def add_text_to_video(input_folder, output_folder):
                 "Hello World",
                 fontsize=50,
                 color="white",
-                font="Arial-Bold"  # Ensure this font is available
+                font="Arial"  # Use simpler font name for better compatibility
             ).set_position(("center", "top")).set_duration(video.duration)
 
             # Overlay the text on the video
