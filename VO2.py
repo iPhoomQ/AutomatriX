@@ -16,12 +16,12 @@ def add_watermark_to_videos(folder_path):
                 
                 # Create text watermark
                 txt_clip = TextClip(
-                    "Hello World",
-                    fontsize=50,
+                    text="Hello World",
+                    font_size=50,
                     color='white',
-                    font="Arial",  # Use simpler font name for better compatibility
                     stroke_color='black',
                     stroke_width=2
+                    # Using default font for better compatibility
                 ).set_duration(clip.duration).set_position(('center', 'bottom'))
                 
                 # Overlay text onto video

@@ -17,10 +17,10 @@ def add_text_to_video(input_folder, output_folder):
 
             # Create a TextClip with "Hello World"
             txt_clip = TextClip(
-                "Hello World",
-                fontsize=50,
-                color="white",
-                font="Arial"  # Use simpler font name for better compatibility
+                text="Hello World",
+                font_size=50,
+                color="white"
+                # Using default font for better compatibility
             ).set_position(("center", "top")).set_duration(video.duration)
 
             # Overlay the text on the video
