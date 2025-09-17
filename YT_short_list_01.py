@@ -4,13 +4,22 @@ from tkinter import ttk, messagebox
 import os
 import re
 from tkinter.scrolledtext import ScrolledText
+from typing import Optional, Dict, Any, List
 
 # Global variables
 download_all = False
 video_list = []
 
-def get_video_info(url):
-    """Get video information including title, duration, and size"""
+def get_video_info(url: str) -> Optional[Dict[str, Any]]:
+    """
+    Get video information including title, duration, and size.
+    
+    Args:
+        url: Video URL to get information for
+        
+    Returns:
+        Dictionary with video information or None if error
+    """
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
@@ -45,8 +54,16 @@ def get_video_info(url):
         print(f"Error getting info for {url}: {str(e)}")
         return None
 
-def format_duration(seconds):
-    """Convert duration in seconds to HH:MM:SS format"""
+def format_duration(seconds: Optional[int]) -> str:
+    """
+    Convert duration in seconds to HH:MM:SS format.
+    
+    Args:
+        seconds: Duration in seconds
+        
+    Returns:
+        Formatted duration string
+    """
     if not seconds:
         return "00:00"
     minutes, seconds = divmod(seconds, 60)
@@ -55,17 +72,36 @@ def format_duration(seconds):
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
     return f"{minutes:02d}:{seconds:02d}"
 
-def format_size(bytes):
-    """Convert file size to human-readable format"""
-    if not bytes or bytes == 0:
+def format_size(bytes_size: Optional[int]) -> str:
+    """
+    Convert file size to human-readable format.
+    
+    Args:
+        bytes_size: File size in bytes
+        
+    Returns:
+        Human-readable size string
+    """
+    if not bytes_size or bytes_size == 0:
         return "Unknown"
     for unit in ['B', 'KB', 'MB', 'GB']:
-        if bytes < 1024.0:
-            return f"{bytes:.1f} {unit}"
-        bytes /= 1024.0
-    return f"{bytes:.1f} TB"
+        if bytes_size < 1024.0:
+            return f"{bytes_size:.1f} {unit}"
+        bytes_size /= 1024.0
+    return f"{bytes_size:.1f} TB"
 
-def download_video(url, quality='best', output_directory='.'):
+def download_video(url: str, quality: str = 'best', output_directory: str = '.') -> bool:
+    """
+    Download a video from the given URL.
+    
+    Args:
+        url: Video URL to download
+        quality: Video quality setting (default: 'best')
+        output_directory: Directory to save the video (default: current directory)
+        
+    Returns:
+        True if download successful, False otherwise
+    """
     ydl_opts = {
         'format': f'best[height<={quality}]' if quality != 'best' else 'best',
         'merge_output_format': 'mp4',
@@ -86,21 +122,41 @@ def download_video(url, quality='best', output_directory='.'):
         print(f"Failed to download {url}: {e}")
         return False
 
-class MyLogger(object):
-    def debug(self, msg):
+class MyLogger:
+    """Custom logger class for yt-dlp output."""
+    
+    def debug(self, msg: str) -> None:
+        """Log debug messages."""
         print(msg)
-    def warning(self, msg):
+        
+    def warning(self, msg: str) -> None:
+        """Log warning messages."""
         print(msg)
-    def error(self, msg):
+        
+    def error(self, msg: str) -> None:
+        """Log error messages."""
         print(msg)
 
-def my_hook(d):
+def my_hook(d: Dict[str, Any]) -> None:
+    """Progress hook for yt-dlp downloads."""
     if d['status'] == 'finished':
         print(f"Done downloading, now converting ...")
     elif d['status'] == 'downloading':
         print(f"Downloading: {d['_percent_str']} at {d['_speed_str']} ETA: {d['_eta_str']}")
 
-def parse_duration(duration_str):
+def parse_duration(duration_str: str) -> int:
+    """
+    Parse a duration string like '1m', '2h', '30s' into seconds.
+    
+    Args:
+        duration_str: Duration string with format like '1m', '2h', '30s'
+        
+    Returns:
+        Duration in seconds as integer
+        
+    Raises:
+        ValueError: If duration format is invalid
+    """
     match = re.match(r'^(\d+)([hms])$', duration_str.lower())
     if not match:
         raise ValueError("Invalid duration format. Use formats like '1m', '2h', '30s'.")
@@ -117,10 +173,20 @@ def parse_duration(duration_str):
     else:
         raise ValueError("Invalid unit. Use 'h', 'm', or 's'.")
 
-def is_shorts_url(url):
+def is_shorts_url(url: str) -> bool:
+    """
+    Check if URL is a YouTube Shorts URL.
+    
+    Args:
+        url: URL to check
+        
+    Returns:
+        True if URL is a Shorts URL, False otherwise
+    """
     return '/shorts/' in url.lower()
 
-def search_videos():
+def search_videos() -> None:
+    """Search for YouTube Shorts videos based on GUI parameters."""
     global video_list
     video_list = []
     
@@ -196,7 +262,8 @@ def search_videos():
     except Exception as e:
         messagebox.showerror("Search Error", f"An error occurred during search: {e}")
 
-def start_download():
+def start_download() -> None:
+    """Start downloading videos from the search results."""
     global download_all
 
     if not video_list:

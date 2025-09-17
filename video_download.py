@@ -1,8 +1,10 @@
 import yt_dlp
 import tkinter as tk
 from tkinter import messagebox
+from typing import Dict, Optional
 
-def download_video():
+def download_video() -> None:
+    """Download video from URL entered in the GUI."""
     url = url_entry.get().strip()
     if not url:
         messagebox.showwarning("Input Error", "Please enter a video URL")
@@ -23,15 +25,23 @@ def download_video():
     except Exception as e:
         messagebox.showerror("Download Error", f"An error occurred: {e}")
 
-class MyLogger(object):
-    def debug(self, msg):
+class MyLogger:
+    """Custom logger class for yt-dlp output."""
+    
+    def debug(self, msg: str) -> None:
+        """Log debug messages."""
         print(msg)
-    def warning(self, msg):
+        
+    def warning(self, msg: str) -> None:
+        """Log warning messages."""
         print(msg)
-    def error(self, msg):
+        
+    def error(self, msg: str) -> None:
+        """Log error messages."""
         print(msg)
 
-def my_hook(d):
+def my_hook(d: Dict[str, str]) -> None:
+    """Progress hook for yt-dlp downloads."""
     if d['status'] == 'finished':
         print(f"Done downloading, now converting ...")
     elif d['status'] == 'downloading':

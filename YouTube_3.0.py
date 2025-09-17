@@ -3,11 +3,20 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 import re
+from typing import Dict, Any
 
 # Global variables
 download_all = False  # Flag to determine if all videos should be downloaded without stopping
 
-def download_video(url, quality='best', output_directory='.'):
+def download_video(url: str, quality: str = 'best', output_directory: str = '.') -> None:
+    """
+    Download a video from the given URL.
+    
+    Args:
+        url: Video URL to download
+        quality: Video quality setting (default: 'best')
+        output_directory: Directory to save the video (default: current directory)
+    """
     ydl_opts = {
         'format': quality,  # Set video quality
         'merge_output_format': 'mp4',  # Force output to be MP4
@@ -25,15 +34,23 @@ def download_video(url, quality='best', output_directory='.'):
     except Exception as e:
         print(f"Failed to download {url}: {e}")
 
-class MyLogger(object):
-    def debug(self, msg):
+class MyLogger:
+    """Custom logger class for yt-dlp output."""
+    
+    def debug(self, msg: str) -> None:
+        """Log debug messages."""
         print(msg)
-    def warning(self, msg):
+        
+    def warning(self, msg: str) -> None:
+        """Log warning messages."""
         print(msg)
-    def error(self, msg):
+        
+    def error(self, msg: str) -> None:
+        """Log error messages."""
         print(msg)
 
-def my_hook(d):
+def my_hook(d: Dict[str, Any]) -> None:
+    """Progress hook for yt-dlp downloads."""
     if d['status'] == 'finished':
         print(f"Done downloading, now converting ...")
     elif d['status'] == 'downloading':
@@ -60,7 +77,8 @@ def parse_duration(duration_str):
     else:
         raise ValueError("Invalid unit. Use 'h', 'm', or 's'.")
 
-def start_download():
+def start_download() -> None:
+    """Start the download process with values from GUI."""
     global download_all
 
     # Get values from the GUI

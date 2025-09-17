@@ -2,8 +2,20 @@ import yt_dlp
 import os
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+from typing import Optional
 
-def search_and_download_audio(query, num_results=10, max_duration=600, download_all=False, output_directory='.'):
+def search_and_download_audio(query: str, num_results: int = 10, max_duration: int = 600, 
+                             download_all: bool = False, output_directory: str = '.') -> None:
+    """
+    Search for and download audio files from YouTube.
+    
+    Args:
+        query: Search query string
+        num_results: Maximum number of results to search (default: 10)
+        max_duration: Maximum duration in seconds (default: 600)
+        download_all: Whether to download all results (default: False)
+        output_directory: Directory to save files (default: current directory)
+    """
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': os.path.join(output_directory, '%(title)s.%(ext)s'),
@@ -49,7 +61,8 @@ def search_and_download_audio(query, num_results=10, max_duration=600, download_
     except Exception as e:
         messagebox.showerror("Error", f"Failed to download: {e}")
 
-def start_download():
+def start_download() -> None:
+    """Start the download process with values from GUI."""
     query = search_entry.get().strip()
     output_directory = output_entry.get().strip() or '.'
     num_results = int(num_results_entry.get().strip() or 10)
