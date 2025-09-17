@@ -1,7 +1,15 @@
 from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip # type: ignore
 import os
+from typing import List
 
-def add_text_to_video(input_folder, output_folder):
+def add_text_to_video(input_folder: str, output_folder: str) -> None:
+    """
+    Add "Hello World" text overlay to all MP4 videos in the input folder.
+    
+    Args:
+        input_folder: Path to folder containing input MP4 files
+        output_folder: Path to folder where modified videos will be saved
+    """
     # Ensure output folder exists
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)

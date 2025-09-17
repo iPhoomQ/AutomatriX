@@ -3,11 +3,21 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, List, Tuple
 
-def download_image(url, folder_path, filename=None, size=None):
+def download_image(url: str, folder_path: str, filename: Optional[str] = None, 
+                  size: Optional[Tuple[int, int]] = None) -> bool:
     """
     Download an image from a given URL and save it to the specified folder.
-    Optionally resize the image by specifying width or height.
+    
+    Args:
+        url: URL of the image to download
+        folder_path: Path to folder where image will be saved
+        filename: Optional custom filename (will use URL-based name if None)
+        size: Optional tuple of (width, height) to resize image
+        
+    Returns:
+        True if download successful, False otherwise
     """
     try:
         # Create folder if it doesn't exist
@@ -38,10 +48,17 @@ def download_image(url, folder_path, filename=None, size=None):
         print(f"Failed to download {url}: {e}")
         return None
 
-def search_and_download_images(search_term, num_images=5, output_folder='downloaded_images', size=None):
+def search_and_download_images(search_term: str, num_images: int = 5, 
+                              output_folder: str = 'downloaded_images', 
+                              size: Optional[Tuple[int, int]] = None) -> None:
     """
     Search for images using a search term and download them.
-    The size parameter can be a tuple (width, height) or a string like 'large', 'medium', 'small'.
+    
+    Args:
+        search_term: Term to search for images
+        num_images: Number of images to download (default: 5)
+        output_folder: Folder to save downloaded images (default: 'downloaded_images')
+        size: Optional tuple of (width, height) to resize images
     """
     # Create a search URL (this uses a simple approach without APIs)
     search_url = f"https://www.google.com/search?q={search_term.replace(' ', '+')}&tbm=isch"
