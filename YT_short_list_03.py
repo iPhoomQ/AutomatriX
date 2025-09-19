@@ -4,12 +4,21 @@ from tkinter import ttk, messagebox
 import os
 import re
 from tkinter.scrolledtext import ScrolledText
+from typing import Optional, Dict, Any, List
 
 # Global variables
 video_list = []
 
-def get_video_info(url):
-    """Get video information including title, duration, and size"""
+def get_video_info(url: str) -> Optional[Dict[str, Any]]:
+    """
+    Get video information including title, duration, and size.
+    
+    Args:
+        url: Video URL to get information for
+        
+    Returns:
+        Dictionary with video information or None if error
+    """
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
@@ -85,15 +94,23 @@ def download_video(url, quality='720', output_directory='.'):
         print(f"Failed to download {url}: {e}")
         return False
 
-class MyLogger(object):
-    def debug(self, msg):
+class MyLogger:
+    """Custom logger class for yt-dlp output."""
+    
+    def debug(self, msg: str) -> None:
+        """Log debug messages."""
         print(msg)
-    def warning(self, msg):
+        
+    def warning(self, msg: str) -> None:
+        """Log warning messages."""
         print(msg)
-    def error(self, msg):
+        
+    def error(self, msg: str) -> None:
+        """Log error messages."""
         print(msg)
 
-def my_hook(d):
+def my_hook(d: Dict[str, Any]) -> None:
+    """Progress hook for yt-dlp downloads."""
     if d['status'] == 'finished':
         print(f"Done downloading, now converting ...")
     elif d['status'] == 'downloading':
@@ -200,7 +217,8 @@ def search_videos():
     except Exception as e:
         messagebox.showerror("Search Error", f"An error occurred during search: {e}")
 
-def start_download():
+def start_download() -> None:
+    """Start downloading videos from the search results."""
     global video_list
     
     # If we already have videos in the list, use those

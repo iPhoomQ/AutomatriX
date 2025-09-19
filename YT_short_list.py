@@ -69,7 +69,7 @@ def download_video(url, quality='best', output_directory='.'):
     except Exception as e:
         print(f"Failed to download {url}: {e}")
 
-class MyLogger(object):
+class MyLogger:
     def debug(self, msg):
         print(msg)
     def warning(self, msg):

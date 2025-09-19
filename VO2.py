@@ -1,7 +1,14 @@
 import os
 from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+from typing import List
 
-def add_watermark_to_videos(folder_path):
+def add_watermark_to_videos(folder_path: str) -> None:
+    """
+    Add watermark and reduce audio volume for all MP4 videos in the folder.
+    
+    Args:
+        folder_path: Path to folder containing MP4 files to process
+    """
     for filename in os.listdir(folder_path):
         if filename.endswith(".mp4"):
             input_path = os.path.join(folder_path, filename)

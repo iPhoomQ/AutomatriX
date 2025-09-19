@@ -3,9 +3,16 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 import requests
+from typing import Optional
 
-# Function to download images
-def download_image(url, output_directory):
+def download_image(url: str, output_directory: str) -> None:
+    """
+    Download thumbnail image from a video URL.
+    
+    Args:
+        url: Video URL to extract thumbnail from
+        output_directory: Directory to save the image
+    """
     ydl_opts = {'quiet': True}
     
     try:
@@ -30,8 +37,8 @@ def download_image(url, output_directory):
     except Exception as e:
         print(f"Error fetching image: {e}")
 
-# Function to start downloading images
-def start_download():
+def start_download() -> None:
+    """Start the image download process with values from GUI."""
     query = search_entry.get().strip()
     num_images = num_images_entry.get().strip()
     output_directory = output_entry.get().strip()
