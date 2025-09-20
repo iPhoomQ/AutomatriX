@@ -36,6 +36,12 @@ except Exception:
     REQUESTS_OK = False
 
 try:
+    from bs4 import BeautifulSoup
+    BS4_OK = True
+except Exception:
+    BS4_OK = False
+
+try:
     import moviepy.editor as mpy
     MOVIEPY_OK = True
 except Exception:
@@ -356,6 +362,212 @@ register(Action(
     ],
     runner=run_http_get,
     out_hint="Response text or file"
+))
+
+def run_website_front_page_review(args, app):
+    """Analyze and review a website's front page for key elements and SEO factors."""
+    if not REQUESTS_OK:
+        raise RuntimeError("requests not installed. pip install requests")
+    if not BS4_OK:
+        raise RuntimeError("beautifulsoup4 not installed. pip install beautifulsoup4")
+    
+    url = args["url"]
+    timeout = int(args.get("timeout", 10))
+    detailed = args.get("detailed_analysis", "false").lower() == "true"
+    
+    try:
+        # Fetch the webpage
+        r = requests.get(url, timeout=timeout)
+        r.raise_for_status()
+        
+        # Parse HTML content
+        soup = BeautifulSoup(r.text, 'html.parser')
+        
+        # Extract key information
+        analysis = []
+        analysis.append("=== WEBSITE FRONT PAGE REVIEW ===\n")
+        analysis.append(f"URL: {url}")
+        analysis.append(f"Status Code: {r.status_code}")
+        analysis.append(f"Content Length: {len(r.text)} characters\n")
+        
+        # Title analysis
+        title = soup.find('title')
+        title_text = title.get_text().strip() if title else "No title found"
+        analysis.append(f"🏷️  TITLE: {title_text}")
+        analysis.append(f"   Length: {len(title_text)} characters")
+        if len(title_text) > 60:
+            analysis.append("   ⚠️  Warning: Title might be too long for search results")
+        analysis.append("")
+        
+        # Meta description
+        meta_desc = soup.find('meta', attrs={'name': 'description'})
+        if meta_desc:
+            desc_content = meta_desc.get('content', '').strip()
+            analysis.append(f"📝 META DESCRIPTION: {desc_content}")
+            analysis.append(f"   Length: {len(desc_content)} characters")
+            if len(desc_content) > 160:
+                analysis.append("   ⚠️  Warning: Description might be too long for search results")
+        else:
+            analysis.append("📝 META DESCRIPTION: ❌ Missing - Important for SEO!")
+        analysis.append("")
+        
+        # Headings structure
+        headings = {}
+        for i in range(1, 7):
+            tags = soup.find_all(f'h{i}')
+            if tags:
+                headings[f'h{i}'] = [tag.get_text().strip() for tag in tags]
+        
+        if headings:
+            analysis.append("📑 HEADINGS STRUCTURE:")
+            for level, texts in headings.items():
+                analysis.append(f"   {level.upper()}: {len(texts)} found")
+                if detailed:
+                    for text in texts[:3]:  # Show first 3
+                        analysis.append(f"      - {text[:80]}...")
+                    if len(texts) > 3:
+                        analysis.append(f"      ... and {len(texts)-3} more")
+        else:
+            analysis.append("📑 HEADINGS: ❌ No headings found")
+        analysis.append("")
+        
+        # Links analysis
+        internal_links = []
+        external_links = []
+        
+        for link in soup.find_all('a', href=True):
+            href = link['href']
+            if href.startswith('http'):
+                if url in href:
+                    internal_links.append(href)
+                else:
+                    external_links.append(href)
+            elif href.startswith('/') or not href.startswith('#'):
+                internal_links.append(href)
+        
+        analysis.append(f"🔗 LINKS ANALYSIS:")
+        analysis.append(f"   Internal links: {len(internal_links)}")
+        analysis.append(f"   External links: {len(external_links)}")
+        
+        if detailed and external_links[:5]:
+            analysis.append("   Top external domains:")
+            domains = set()
+            for link in external_links[:10]:
+                try:
+                    from urllib.parse import urlparse
+                    domain = urlparse(link).netloc
+                    domains.add(domain)
+                except:
+                    pass
+            for domain in list(domains)[:5]:
+                analysis.append(f"      - {domain}")
+        analysis.append("")
+        
+        # Images analysis
+        images = soup.find_all('img')
+        images_with_alt = [img for img in images if img.get('alt')]
+        analysis.append(f"🖼️  IMAGES ANALYSIS:")
+        analysis.append(f"   Total images: {len(images)}")
+        analysis.append(f"   Images with alt text: {len(images_with_alt)}")
+        if len(images) > 0:
+            missing_alt = len(images) - len(images_with_alt)
+            if missing_alt > 0:
+                analysis.append(f"   ⚠️  {missing_alt} images missing alt text (accessibility issue)")
+        analysis.append("")
+        
+        # Performance indicators
+        analysis.append("⚡ PERFORMANCE INDICATORS:")
+        analysis.append(f"   Page size: {len(r.content)} bytes ({len(r.content)/1024:.1f} KB)")
+        
+        # Check for common performance-related tags
+        has_css = len(soup.find_all('link', rel='stylesheet')) > 0
+        has_js = len(soup.find_all('script')) > 0
+        analysis.append(f"   CSS files: {'✅' if has_css else '❌'}")
+        analysis.append(f"   JavaScript: {'✅' if has_js else '❌'}")
+        analysis.append("")
+        
+        # SEO recommendations for "ME" (personal/business)
+        analysis.append("🎯 PERSONALIZATION REVIEW (for ME/Business):")
+        
+        # Check for common personal/business elements
+        contact_keywords = ['contact', 'email', 'phone', 'about', 'bio', 'portfolio']
+        content_text = soup.get_text().lower()
+        found_elements = [kw for kw in contact_keywords if kw in content_text]
+        
+        if found_elements:
+            analysis.append(f"   ✅ Found personal/business elements: {', '.join(found_elements)}")
+        else:
+            analysis.append("   ⚠️  Consider adding personal/business contact information")
+        
+        # Social media presence
+        social_links = []
+        social_platforms = ['facebook', 'twitter', 'linkedin', 'instagram', 'youtube', 'github']
+        for link in soup.find_all('a', href=True):
+            href = link['href'].lower()
+            for platform in social_platforms:
+                if platform in href:
+                    social_links.append(platform)
+                    break
+        
+        if social_links:
+            analysis.append(f"   📱 Social media links found: {', '.join(set(social_links))}")
+        else:
+            analysis.append("   📱 Consider adding social media links for better engagement")
+        
+        analysis.append("")
+        analysis.append("=== OVERALL ASSESSMENT ===")
+        
+        score = 0
+        max_score = 7
+        
+        if title and len(title_text) > 0:
+            score += 1
+        if meta_desc:
+            score += 1
+        if headings:
+            score += 1
+        if len(images_with_alt) >= len(images) * 0.8:  # 80% of images have alt text
+            score += 1
+        if found_elements:
+            score += 1
+        if social_links:
+            score += 1
+        if len(r.content) < 2000000:  # Less than 2MB
+            score += 1
+        
+        percentage = (score / max_score) * 100
+        analysis.append(f"SEO/UX Score: {score}/{max_score} ({percentage:.1f}%)")
+        
+        if percentage >= 80:
+            analysis.append("🎉 Excellent! Your front page is well-optimized.")
+        elif percentage >= 60:
+            analysis.append("👍 Good foundation, but room for improvement.")
+        else:
+            analysis.append("🔧 Needs improvement for better user experience and SEO.")
+        
+        result_text = "\n".join(analysis)
+        preview = result_text[:1500] + "..." if len(result_text) > 1500 else result_text
+        
+        return {"text": result_text, "preview": preview}
+        
+    except requests.RequestException as e:
+        error_msg = f"Error fetching website: {str(e)}"
+        return {"text": error_msg, "preview": error_msg}
+    except Exception as e:
+        error_msg = f"Error analyzing website: {str(e)}"
+        return {"text": error_msg, "preview": error_msg}
+
+register(Action(
+    name="Website Front Page Review (for ME)",
+    category="Web",
+    description="Comprehensive analysis of a website's front page including SEO, accessibility, and personalization factors for personal/business use.",
+    params=[
+        Param("url","Website URL","str",True,"https://example.com"),
+        Param("timeout","Timeout (s)","int",False,10),
+        Param("detailed_analysis","Detailed Analysis","choice",False,"false",["true","false"],"Include detailed breakdown of elements"),
+    ],
+    runner=run_website_front_page_review,
+    out_hint="Website analysis report"
 ))
 
 # ---- DATA ----
